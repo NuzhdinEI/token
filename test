@@ -1,0 +1,55 @@
+// Указываем версию компилятора Solidity
+pragma solidity ^0.8.0;
+
+// Объявляем контракт
+contract MyToken {
+    // Маппинг балансов адресов
+    mapping(address => uint256) public balances;
+    
+    // Маппинг разрешений на расход токенов
+    mapping(address => mapping(address => uint256)) public allowances;
+    
+    // Общее количество выпущенных токенов
+    uint256 public totalSupply;
+
+    // Событие для отслеживания переводов
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    
+    // Событие для отслеживания разрешений на расход токенов
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+
+    // Конструктор контракта
+    constructor() {
+        // Указываем общее количество токенов при создании контракта
+        totalSupply = 1000000; // Например, 1 миллион токенов
+        // Присваиваем все токены создателю контракта
+        balances[msg.sender] = totalSupply;
+    }
+
+    // Функция для перевода токенов
+    function transfer(address _to, uint256 _value) public returns (bool success) {
+        require(balances[msg.sender] >= _value, "Insufficient balance");
+        balances[msg.sender] -= _value;
+        balances[_to] += _value;
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+
+    // Функция для разрешения расхода токенов другим адресам
+    function approve(address _spender, uint256 _value) public returns (bool success) {
+        allowances[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
+
+    // Функция для расхода токенов от имени владельца
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+        require(_value <= balances[_from], "Insufficient balance");
+        require(_value <= allowances[_from][msg.sender], "Allowance exceeded");
+        balances[_from] -= _value;
+        balances[_to] += _value;
+        allowances[_from][msg.sender] -= _value;
+        emit Transfer(_from, _to, _value);
+        return true;
+    }
+}
