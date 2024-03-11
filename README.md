@@ -7,7 +7,3 @@ contract MyToken {
     uint256 public totalSupply = 10000000 * 10 ** 18; // Total supply of 10,000,000 tokens with 18 decimal places
     mapping(address => uint256) public balanceOf;
 
-    constructor() {
-        balanceOf[msg.sender] = totalSupply; // Assign all tokens to the contract creator initially
-    }
-}
